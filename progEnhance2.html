@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="CSE 134B HW Part 1">
+    <title>CSE 134B Homework 5</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+
+        .withJS {
+            float: left;
+            height: 46px;
+            padding: 0 10px;
+        }
+
+        .withJS:not(:checked) > input {
+            position:absolute;
+            top:-9999px;
+        }
+
+        .withJS:not(:checked) > label {
+            float: right;
+            width: 1em;
+            overflow: hidden;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 30px;
+            color: #ccc;
+        }
+
+        .withJS:not(:checked) > label:before {
+            content: '★ ';
+        }
+
+        .withJS:not(:checked) > label:hover,
+        .withJS:not(:checked) > label:hover ~ label {
+            color: #deb217;  
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Rating Widget</h1>
+    <rating-widget>
+        <form action="https://httpbin.org/post" method="POST" class="withJS" style="display:none">
+            <input type="hidden" name="question" value="How satisfied are you?">
+
+            <input type="radio" id="star5" name="rating" value="5" onclick="logData()">
+            <label for="star5" title="5 stars">5 stars</label>
+            
+            <input type="radio" id="star4" name="rating" value="4" onclick="logData()">
+            <label for="star4" title="4 stars">4 stars</label>
+            
+            <input type="radio" id="star3" name="rating" value="3" onclick="logData()">           
+            <label for="star3" title="3 stars">3 stars</label>
+            
+            <input type="radio" id="star2" name="rating" value="2" onclick="logData()">
+            <label for="star2" title="2 stars">2 stars</label>
+            
+            <input type="radio" id="star1" name="rating" value="1" onclick="logData()">
+            <label for="star1" title="1 star">1 star</label>
+            
+            <input type="hidden" id="setBy" name="sentBy" value="JS">
+        </form>
+    </rating-widget>
+    
+    <br>
+    <p id="output-message"></p>
+
+    <noscript>
+        <form action="https://httpbin.org/post" method="POST">
+            <label for="rating">How satisfied are you?</label>
+            <input type="hidden" name="question" value="How satisfied are you?">
+            <input type="hidden" name="sentBy" value="HTML">
+            <input type="number" id="rating" name="rating" min="1" max="5" value="0" required>
+            <button type="submit">Submit</button>
+        </form>
+    </noscript>
+
+    <script>
+        document.querySelector('.withJS').style.display='block';
+
+        function logData() {
+            const ratingContainer = document.querySelector('.withJS');
+            const output = document.getElementById("output-message");
+            const formData = new FormData(ratingContainer);
+            
+            // Clear previous messages
+            output.innerHTML = '';
+
+            const selectedRating = document.querySelector('.withJS input:checked').value;
+    
+            // Clear previous messages
+            output.innerHTML = '';
+    
+            // Check if the rating is 3 stars or less
+            if (selectedRating <= 3) {
+                ratingContainer.style.display="none";
+                output.textContent = "Thank you for your rating of  " + selectedRating 
+                + " stars. We will try to do better!";
+            }
+            
+            else if (selectedRating >= 4) {
+                ratingContainer.style.display="none";
+                output.textContent = "Thank you for your " + selectedRating + " star rating!";
+            }
+
+            fetch('https://httpbin.org/post', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Sent-By': 'Javascript', // Custom header
+                },
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
+        }
+    </script>
+</body>
+</html>
